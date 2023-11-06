@@ -174,7 +174,9 @@ export class Pattern {
         this.addPatternShape(args.map((arg) => parseInt(arg)));
         break;
       case 'shapeColor':
-        this.addPatternShape(args.slice(0, args.length - 1).map((arg) => parseInt(arg)), args[args.length - 1]);
+        const points = args.slice(0, args.length - 1).map((arg) => parseInt(arg));
+        this.addPatternShape(points, args[args.length - 1]);
+        this.addPatternLine(points);
         break;
     
       default:

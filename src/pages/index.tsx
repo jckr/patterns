@@ -6,9 +6,7 @@ import { PatternRenderer } from './pattern-renderer'
 const inter = Inter({ subsets: ['latin'] })
 
 const instructions: string[] = [
-// 'hex1',
-// 'hex2', 
-'hex4',
+ 'hex4',
  'hex3',
  'addSymmetricPoint,2,3,8',
  'addSymmetricPoint,8,13,3',
@@ -102,6 +100,34 @@ const instructions: string[] = [
  
   'hex2',
 
+ 'addLineIntersect,8,9,87,92',
+ 'addLineIntersect,8,9,88,89',
+ 'addLineIntersect,8,13,87,88',
+ 'addLineIntersect,8,13,91,92',
+ 'addLineIntersect,9,10,87,88',
+ 'addLineIntersect,9,10,89,90',
+ 'addLineIntersect,10,11,88,89',
+ 'addLineIntersect,10,11,90,91',
+ 'addLineIntersect,11,12,89,90',
+ 'addLineIntersect,11,12,91,92',
+ 'addLineIntersect,12,13,87,92',
+ 'addLineIntersect,12,13,90,91',
+
+ 'shapeColor,87,95,8,93,brown',
+ 'shapeColor,103,92,96,13,brown',
+ 'shapeColor,12,102,91,104,brown',
+ 'shapeColor,11,101,90,100,brown',
+ 'shapeColor,10,98,89,99,brown',
+ 'shapeColor,9,94,88,97,brown',
+
+'shapeColor,95,8,50,2,60,9,97,gray',
+'shapeColor,9,94,99,10,58,1,61,gray',
+'shapeColor,10,98,101,11,56,6,59,gray',
+'shapeColor,11,100,104,12,54,5,57,gray',
+'shapeColor,12,102,96,13,53,4,55,gray',
+'shapeColor,8,93,103,13,52,3,51,gray',
+
+
  'shapeColor,27,14,62,15,28,51,green',
  'shapeColor,29,15,66,16,30,52,green',
  'shapeColor,31,16,73,17,32,53,green',
@@ -115,23 +141,22 @@ const instructions: string[] = [
  'shapeColor,47,24,70,25,48,60,green',
  'shapeColor,49,25,64,14,26,50,green',
  
- 'line,27,14,62,15,28,51',
- 'line,29,15,66,16,30,52',
- 'line,31,16,73,17,32,53',
- 'line,33,17,71,18,34,55',
- 'line,35,18,63,19,37,54',
- 'line,36,19,67,20,39,57',
- 'line,20,38,56,40,21,72',
- 'line,41,21,65,22,42,59',
- 'line,43,22,68,23,44,58',
- 'line,45,23,69,24,46,61',
- 'line,47,24,70,25,48,60',
- 'line,49,25,64,14,26,50',
- 
- 
- 
- 
 
+ 
+ 'shapeColor,64,80,62,74,66,78,73,82,71,75,63,79,67,83,72,85,65,77,68,81,69,84,70,76,red',
+ 
+'shapeColor,14,64,80,62,orange',
+'shapeColor,15,62,74,66,orange',
+'shapeColor,16,66,78,73,orange',
+'shapeColor,17,73,82,71,orange',
+'shapeColor,18,71,75,63,orange',
+'shapeColor,19,63,79,67,orange',
+'shapeColor,20,67,83,72,orange',
+'shapeColor,21,72,85,65,orange',
+'shapeColor,22,65,77,68,orange',
+'shapeColor,23,68,81,69,orange',
+'shapeColor,24,69,84,70,orange',
+'shapeColor,25,70,76,64,orange',
  
 
  'shapeColor,8,50,26,14,27,51,blue',
@@ -148,18 +173,7 @@ const instructions: string[] = [
  'shapeColor,60,2,50,49,25,48,blue',
 
 
- 'line,8,50,26,14,27,51',
- 'line,3,51,28,15,29,52',
- 'line,13,52,30,16,31,53',
- 'line,53,32,17,33,55,4',
- 'line,55,12,54,35,18,34',
- 'line,54,5,57,36,19,37',
- 'line,57,11,56,38,20,39',
- 'line,56,6,59,41,21,40',
- 'line,59,10,58,43,22,42',
- 'line,58,1,61,45,23,44',
- 'line,61,9,60,47,24,46',
- 'line,60,2,50,49,25,48',
+
 
 
  
