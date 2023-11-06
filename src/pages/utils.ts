@@ -51,6 +51,36 @@ export function findLineCircleIntersections(A: [number, number], B: [number, num
   }
 }
 
+export function findSymmetricPoint(A: [number, number], B: [number, number], C: [number, number]): [number, number] {
+  const [ax, ay] = A;
+  const [bx, by] = B;
+  const [cx, cy] = C;
+
+  // Calculate the vector from A to B
+  const ABVector = [bx - ax, by - ay];
+
+  // Calculate the vector from C to A
+  const CAVector = [ax - cx, ay - cy];
+
+  // Calculate the dot product of AB and CA vectors
+  const dotProduct = ABVector[0] * CAVector[0] + ABVector[1] * CAVector[1];
+
+  // Calculate the length of AB vector squared
+  const lengthABSquared = ABVector[0] ** 2 + ABVector[1] ** 2;
+
+  // Calculate the coordinates of point D
+  const Dx = ax - (dotProduct * ABVector[0]) / lengthABSquared;
+  const Dy = ay - (dotProduct * ABVector[1]) / lengthABSquared;
+
+  const CDVector = [Dx - cx, Dy - cy];
+
+  const Ex = Dx + CDVector[0];
+  const Ey = Dy + CDVector[1];
+
+  return [Ex, Ey];
+}
+
+
 export function makeShape(ctx: CanvasRenderingContext2D, points: Array<[number, number]>) {
   ctx.beginPath();
   const firstPoint = points[0];

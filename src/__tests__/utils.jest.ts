@@ -1,5 +1,5 @@
 type Point = [number, number];
-import { findIntersection, findLineCircleIntersections } from '../pages/utils';
+import { findIntersection, findLineCircleIntersections, findSymmetricPoint } from '../pages/utils';
 describe('find intersections', () => {
   it('should find intersections', () => {
     const A: Point = [0, 0];
@@ -55,5 +55,15 @@ describe('find line circle intersections', () => {
     const intersections = findLineCircleIntersections(A, B, C, D);
     expect(intersections).toHaveLength(0);
   });
+});
 
+describe('find symmetric point', () => {
+  it('finds symmetric point', () => {
+    
+    expect(findSymmetricPoint([5, 2], [5, -2], [0,0])).toEqual([10,0]);
+    expect(findSymmetricPoint([5, 2], [5, -2], [3,1])).toEqual([7,1]);
+    expect(findSymmetricPoint([0, 0], [2, 2], [0,2])).toEqual([2,0]);
+
+
+  });
 });
