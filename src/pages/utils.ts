@@ -1,3 +1,5 @@
+const SQRT32 = Math.sqrt(3) / 2;
+
 export function findIntersection(A: [number, number], B: [number, number], C: [number, number], D: [number, number]): Array<[number, number]> {
   const denominator =
     (A[0] - B[0]) * (C[1] - D[1]) - (A[1] - B[1]) * (C[0] - D[0]);
@@ -89,4 +91,30 @@ export function makeShape(ctx: CanvasRenderingContext2D, points: Array<[number, 
     ctx.lineTo(point[0], point[1]);
   }
   ctx.closePath();
+}
+
+export function getHexLong(cx: number, cy: number, s: number): Array<[number, number]> {
+  const s2 = s/2;
+  return [
+  [cx - s, cy],
+  [cx - s2, cy - (SQRT32 * s)],
+  [cx + s2, cy - (SQRT32 * s)],
+  [cx + s, cy],
+  [cx + s2, cy + (SQRT32 * s)],
+  [cx - s2, cy + (SQRT32 * s)]];
+}
+
+export function getHexTall(cx: number, cy: number, s: number): Array<[number, number]> {
+  const s2 = s/2;
+  return [
+  [cx, cy - s],
+  [cx - (SQRT32 * s), cy - s2],
+  [cx - (SQRT32 * s), cy + s2 ],
+  [cx, cy + s],
+  [cx + (SQRT32 * s), cy + s2],
+  [cx + (SQRT32 * s), cy - s2]];
+}
+
+export function getMiddle(A: [number, number], B: [number, number]): [number, number]  {
+  return [(A[0] + B[0]) / 2, (A[1] + B[1]) / 2];
 }

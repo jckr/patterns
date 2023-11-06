@@ -17,7 +17,7 @@ export const PatternRenderer = ({
     if (canvas) {
       const ctx = canvas.getContext('2d');
       if (ctx) {
-        pattern.current = new Pattern(ctx, instructions);
+        pattern.current = new Pattern(ctx, instructions, 450);
         pattern.current.drawConstruction();
         pattern.current.draw();
       }
