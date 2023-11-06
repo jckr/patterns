@@ -1,7 +1,7 @@
 type PatternRendererProps = {
   width?: number;
   height?: number;
-  instructions?: string[];
+  instructions?: Array<string|Array<string>>;
 };
 import { Pattern } from './pattern';
 import {useRef, useEffect} from 'react';

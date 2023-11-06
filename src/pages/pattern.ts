@@ -1,25 +1,61 @@
 const SQRT32 = Math.sqrt(3) / 2;
 
-import {findIntersection, findLineCircleIntersections, findSymmetricPoint, getHexLong, getHexTall, getMiddle, makeShape} from './utils';
+import {
+  findIntersection,
+  findLineCircleIntersections,
+  findSymmetricPoint,
+  getHexLong,
+  getHexTall,
+  getMiddle,
+  makeShape,
+} from './utils';
 
 export class Pattern {
-  private cx: number;
-  private cy: number;
-  private points:Array<[number, number]> = [];
   private constructionSegments: Array<[number, number]> = [];
   private constructionCircles: Array<[number, number]> = [];
-  private patternLines: Array<{points: Array<number>, color: string}> = [];
-  private patternShapes: Array<{points: Array<number>, color: string}> = [];
-  constructor(private ctx:CanvasRenderingContext2D, private instructions:Array<string> = [], private size:number = 500, private strokeWidth:number = 5, private innerStroke:number = 3) {
+  private cx: number;
+  private cy: number;
+  private instruction: string | null = null;
+  private order: number = 0;
+  private patternLines: Array<{ points: Array<number>; color: string }> = [];
+  private patternShapes: Array<{ points: Array<number>; color: string }> = [];
+  private points: Array<{
+    x: number;
+    y: number;
+    order: number;
+    instruction: string | null;
+  }> = [];
+  constructor(
+    private ctx: CanvasRenderingContext2D,
+    instructions: Array<string | Array<string>> = [],
+    private size: number = 500,
+    private strokeWidth: number = 5,
+    private innerStroke: number = 3
+  ) {
     this.cx = ctx.canvas.width / 2;
     this.cy = ctx.canvas.height / 2;
-    for (const instruction of instructions) {
-      this.readInstruction(instruction);
+    this.order = 0;
+    for (const instructionGroup of instructions) {
+      if (typeof instructionGroup === 'string') {
+        this.instruction = instructionGroup;
+        this.readInstruction(instructionGroup);
+      } else {
+        for (const instruction of instructionGroup) {
+          this.instruction = instruction;
+          this.readInstruction(instruction);
+        }
+      }
+      this.order++;
     }
   }
 
-  addPoint(x:number, y:number) {
-    this.points.push([x, y]);
+  addPoint(x: number, y: number) {
+    this.points.push({
+      x,
+      y,
+      order: this.order,
+      instruction: this.instruction,
+    });
   }
   addConstructionSegment(a: number, b: number) {
     this.constructionSegments.push([a, b]);
@@ -28,32 +64,49 @@ export class Pattern {
     this.constructionCircles.push([a, b]);
   }
   addPatternLine(points: Array<number>, color: string = '#fff') {
-    this.patternLines.push({points, color});
+    this.patternLines.push({ points, color });
   }
   addPatternShape(points: Array<number>, color: string = 'red') {
-    this.patternShapes.push({points, color});
+    this.patternShapes.push({ points, color });
   }
   addLineIntersect(a: number, b: number, c: number, d: number) {
-    const intersections = findIntersection(this.points[a], this.points[b], this.points[c], this.points[d]);
+    const intersections = findIntersection(
+      this.getCoords(a),
+      this.getCoords(b),
+      this.getCoords(c),
+      this.getCoords(d)
+    );
     for (const intersection of intersections) {
       this.addPoint(intersection[0], intersection[1]);
     }
   }
   addCircleIntersect(a: number, b: number, c: number, d: number) {
-    const intersections = findLineCircleIntersections(this.points[a], this.points[b], this.points[c], this.points[d]);
+    const intersections = findLineCircleIntersections(
+      this.getCoords(a),
+      this.getCoords(b),
+      this.getCoords(c),
+      this.getCoords(d)
+    );
     for (const intersection of intersections) {
       this.addPoint(intersection[0], intersection[1]);
     }
   }
   addSymmetricPoint(a: number, b: number, c: number) {
-    this.addPoint(...findSymmetricPoint(this.points[a], this.points[b], this.points[c]));
+    this.addPoint(
+      ...findSymmetricPoint(
+        this.getCoords(a),
+        this.getCoords(b),
+        this.getCoords(c)
+      )
+    );
   }
   addHex1() {
-    const cx = this.cx, cy = this.cy;
+    const cx = this.cx,
+      cy = this.cy;
     const n = this.points.length;
     const s2 = this.size / 2;
     this.addPoint(cx, cy);
-    
+
     const points = getHexLong(cx, cy, s2);
 
     for (const point of points) {
@@ -68,7 +121,8 @@ export class Pattern {
     this.addConstructionSegment(n + 6, n + 1);
   }
   addHex2() {
-    const cx = this.cx, cy = this.cy;
+    const cx = this.cx,
+      cy = this.cy;
     const n = this.points.length;
     const s2 = this.size / 2;
 
@@ -88,7 +142,8 @@ export class Pattern {
     this.addConstructionSegment(n + 6, n + 1);
   }
   addHex3() {
-    const cx = this.cx, cy = this.cy;
+    const cx = this.cx,
+      cy = this.cy;
     const n = this.points.length;
     const s2 = this.size / 2;
 
@@ -110,7 +165,8 @@ export class Pattern {
     this.addConstructionSegment(n + 6, n + 1);
   }
   addHex4() {
-    const cx = this.cx, cy = this.cy;
+    const cx = this.cx,
+      cy = this.cy;
     const n = this.points.length;
     const s2 = this.size / 2;
 
@@ -135,13 +191,27 @@ export class Pattern {
     const [command, ...args] = instruction.split(',');
     switch (command) {
       case 'addCircleIntersect':
-        this.addCircleIntersect(parseInt(args[0]), parseInt(args[1]), parseInt(args[2]), parseInt(args[3]));
+        this.addCircleIntersect(
+          parseInt(args[0]),
+          parseInt(args[1]),
+          parseInt(args[2]),
+          parseInt(args[3])
+        );
         break;
       case 'addLineIntersect':
-        this.addLineIntersect(parseInt(args[0]), parseInt(args[1]), parseInt(args[2]), parseInt(args[3]));
+        this.addLineIntersect(
+          parseInt(args[0]),
+          parseInt(args[1]),
+          parseInt(args[2]),
+          parseInt(args[3])
+        );
         break;
       case 'addSymmetricPoint':
-        this.addSymmetricPoint(parseInt(args[0]), parseInt(args[1]), parseInt(args[2]));
+        this.addSymmetricPoint(
+          parseInt(args[0]),
+          parseInt(args[1]),
+          parseInt(args[2])
+        );
         break;
       case 'circle':
         this.addConstructionCircle(parseInt(args[0]), parseInt(args[1]));
@@ -162,7 +232,10 @@ export class Pattern {
         this.addPatternLine(args.map((arg) => parseInt(arg)));
         break;
       case 'lineColor':
-        this.addPatternLine(args.slice(0, args.length - 1).map((arg) => parseInt(arg)), args[args.length - 1]);
+        this.addPatternLine(
+          args.slice(0, args.length - 1).map((arg) => parseInt(arg)),
+          args[args.length - 1]
+        );
         break;
       case 'point':
         this.addPoint(parseInt(args[0]), parseInt(args[1]));
@@ -174,11 +247,13 @@ export class Pattern {
         this.addPatternShape(args.map((arg) => parseInt(arg)));
         break;
       case 'shapeColor':
-        const points = args.slice(0, args.length - 1).map((arg) => parseInt(arg));
+        const points = args
+          .slice(0, args.length - 1)
+          .map((arg) => parseInt(arg));
         this.addPatternShape(points, args[args.length - 1]);
         this.addPatternLine(points);
         break;
-    
+
       default:
         console.log('unknown command', command);
     }
@@ -193,14 +268,14 @@ export class Pattern {
     for (const segment of this.constructionSegments) {
       const [a, b] = segment;
       this.ctx.beginPath();
-      this.ctx.moveTo(this.points[a][0], this.points[a][1]);
-      this.ctx.lineTo(this.points[b][0], this.points[b][1]);
+      this.ctx.moveTo(...this.getCoords(a));
+      this.ctx.lineTo(...this.getCoords(b));
       this.ctx.stroke();
     }
     for (const circle of this.constructionCircles) {
       const [a, b] = circle;
-      const [x1, y1] = this.points[a];
-      const [x2, y2] = this.points[b];
+      const [x1, y1] = this.getCoords(a);
+      const [x2, y2] = this.getCoords(b);
       const dx = x2 - x1;
       const dy = y2 - y1;
       const r = Math.hypot(dx, dy);
@@ -211,7 +286,7 @@ export class Pattern {
     this.ctx.fillStyle = '#222';
     let idx = 0;
     for (const point of this.points) {
-      const [x, y] = point;
+      const { x, y } = point;
       this.ctx.beginPath();
       this.ctx.arc(x, y, 3, 0, 2 * Math.PI);
       this.ctx.fill();
@@ -226,28 +301,24 @@ export class Pattern {
     this.ctx.save();
     for (const shape of this.patternShapes) {
       this.ctx.fillStyle = shape.color;
-      makeShape(this.ctx, shape.points.map((point) => {
-        return [this.points[point][0], this.points[point][1]];
-      }));
+      makeShape(this.ctx, shape.points.map(this.getCoords));
       this.ctx.fill();
     }
     for (const shape of this.patternLines) {
       this.ctx.strokeStyle = '#000';
       this.ctx.lineWidth = this.strokeWidth;
-      makeShape(this.ctx, shape.points.map((point) => {
-        return [this.points[point][0], this.points[point][1]];
-      }));
+      makeShape(this.ctx, shape.points.map(this.getCoords));
       this.ctx.stroke();
     }
     for (const shape of this.patternLines) {
       this.ctx.strokeStyle = shape.color;
       this.ctx.lineWidth = this.innerStroke;
-      makeShape(this.ctx, shape.points.map((point) => {
-        return [this.points[point][0], this.points[point][1]];
-      }));
+      makeShape(this.ctx, shape.points.map(this.getCoords));
       this.ctx.stroke();
     }
     this.ctx.restore();
   }
+  getCoords(index: number) {
+    return [this.points[index].x, this.points[index].y] as [number, number];
+  }
 }
-
