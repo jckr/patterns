@@ -1,4 +1,72 @@
 {
+  "cordoba": {
+    "symmetry": 4,
+    "instructions": [
+      "addRelativePoint,0,0",
+
+      [
+        "addRelativePoint,-1,-1",
+        "addRelativePoint,-1,1",
+        "addRelativePoint,1,-1",
+        "addRelativePoint,1,1"
+      ],
+
+      [
+        "addRelativePoint,-1,0",
+        "addRelativePoint,0,-1",
+        "addRelativePoint,0,1",
+        "addRelativePoint,1,0"
+      ],
+
+      "circle,0,8",
+
+      ["addCircleIntersect,1,4,0,8", "addCircleIntersect,2,3,0,8"],
+
+      [
+        "addLineIntersect,5,11,0,6",
+        "addLineIntersect,5,11,3,8",
+        "addLineIntersect,1,2,8,10",
+
+        "addLineIntersect,5,9,0,6",
+        "addLineIntersect,5,9,3,8",
+        "addLineIntersect,1,2,8,12"
+      ],
+
+      [
+        "addLineIntersect,7,10,1,3",
+        "addLineIntersect,7,10,0,5",
+        "addLineIntersect,7,11,1,3",
+
+        "addLineIntersect,6,12,2,4",
+        "addLineIntersect,6,12,0,7",
+        "addLineIntersect,6,9,2,4"
+      ],
+
+      [
+        "addLineIntersect,15,8,6,12",
+        "addLineIntersect,7,19,5,11",
+        "addLineIntersect,5,11,6,12",
+        "addLineIntersect,5,11,6,23"
+      ],
+
+      [
+        "segment,19,7",
+        "segment,6,22",
+        "segment,6,23",
+        "segment,7,21",
+        "segment,5,14",
+        "segment,5,17",
+        "segment,8,15",
+        "segment,8,18"
+      ],
+      "shapeColor,1,19,10,15,red",
+      "shapeColor,10,24,26,25,green",
+      "shapeColor,19,10,24,6,yellow",
+      "shapeColor,6,24,13,27,blue",
+      "shapeColor,0,20,25,26,24,13,orange",
+      "shapeColor,6,27,11,21,yellow"
+    ]
+  },
   "star": {
     "symmetry": 1,
     "instructions": [

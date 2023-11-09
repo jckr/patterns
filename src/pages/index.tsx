@@ -192,6 +192,8 @@ const instructions: Array<string[] | string> = [
   ],
 ];
 
+const figure = 'cordoba';
+
 export default function Home() {
   return (
     <>
@@ -205,7 +207,8 @@ export default function Home() {
         <Renderer
           width={500}
           height={500}
-          instructions={data.star.instructions}
+          symmetry={data[figure].symmetry}
+          instructions={data[figure].instructions}
         />
       </main>
     </>

@@ -7,7 +7,9 @@ import {
   getHexLong,
   getHexTall,
   getMiddle,
+  isCloseTo,
   makeShape,
+  rotate,
 } from './utils';
 
 export class Engine {
@@ -77,7 +79,16 @@ export class Engine {
       this.getCoords(d)
     );
     for (const intersection of intersections) {
-      this.addPoint(intersection[0], intersection[1]);
+      if (
+        !isCloseTo(intersection, [
+          this.getCoords(a),
+          this.getCoords(b),
+          this.getCoords(c),
+          this.getCoords(d),
+        ])
+      ) {
+        this.addPoint(intersection[0], intersection[1]);
+      }
     }
   }
   addCircleIntersect(a: number, b: number, c: number, d: number) {
@@ -88,8 +99,18 @@ export class Engine {
       this.getCoords(d)
     );
     for (const intersection of intersections) {
-      this.addPoint(intersection[0], intersection[1]);
+      if (
+        !isCloseTo(intersection, [
+          this.getCoords(a),
+          this.getCoords(b),
+          this.getCoords(c),
+          this.getCoords(d),
+        ])
+      ) {
+        this.addPoint(intersection[0], intersection[1]);
+      }
     }
+    console.log(this.points);
   }
   addSymmetricPoint(a: number, b: number, c: number) {
     this.addPoint(
@@ -206,6 +227,12 @@ export class Engine {
           parseInt(args[3])
         );
         break;
+      case 'addRelativePoint':
+        this.addPoint(
+          this.cx + (parseInt(args[0]) * this.size) / 2,
+          this.cy + (parseInt(args[1]) * this.size) / 2
+        );
+        break;
       case 'addSymmetricPoint':
         this.addSymmetricPoint(
           parseInt(args[0]),
@@ -259,65 +286,100 @@ export class Engine {
     }
   }
 
-  drawConstruction() {
+  drawConstruction(symmetry: number = 1) {
     this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
     this.ctx.save();
     this.ctx.strokeStyle = '#222';
     this.ctx.setLineDash([3, 3]);
     this.ctx.lineWidth = 1;
-    for (const segment of this.constructionSegments) {
-      const [a, b] = segment;
-      this.ctx.beginPath();
-      this.ctx.moveTo(...this.getCoords(a));
-      this.ctx.lineTo(...this.getCoords(b));
-      this.ctx.stroke();
-    }
-    for (const circle of this.constructionCircles) {
-      const [a, b] = circle;
-      const [x1, y1] = this.getCoords(a);
-      const [x2, y2] = this.getCoords(b);
-      const dx = x2 - x1;
-      const dy = y2 - y1;
-      const r = Math.hypot(dx, dy);
-      this.ctx.beginPath();
-      this.ctx.arc(x1, y1, r, 0, 2 * Math.PI);
-      this.ctx.stroke();
-    }
-    this.ctx.fillStyle = '#222';
-    let idx = 0;
-    for (const point of this.points) {
-      const { x, y } = point;
-      this.ctx.beginPath();
-      this.ctx.arc(x, y, 3, 0, 2 * Math.PI);
-      this.ctx.fill();
-      this.ctx.font = '12px sans-serif';
-      this.ctx.fillText(idx.toString(), x + 5, y + 5);
-      idx++;
-    }
 
+    // How symmetry works:
+    // we are going to divide the pattern area in n = [symmetry] slices around
+    // the center. then, everything that we draw, we're going to replicate that
+    // n times, rotating each time by 1nth of a circle.
+    // many of our patterns are based on an hexagon, a square, an equilateral
+    // triangle or other figures that naturally tile.
+
+    for (let section = 0; section < symmetry; section++) {
+      // this helper function will give the coordinate of a point after moving
+      // it forward by [section] slices, if we have the [x, y] coordinates of
+      // that point to begin with
+      const rotateSection = (point: [number, number]) => {
+        return rotate(
+          point,
+          [this.cx, this.cy],
+          (section * 2 * Math.PI) / symmetry
+        );
+      };
+      // this function is similar but just takes an index as input, it will
+      // fetch the [x,y] coordinates of the corresponding point, then rotate
+      // it using the helper
+      const getCoordinatesAndRotate = (index: number) => {
+        return rotateSection(this.getCoords(index));
+      };
+      for (const segment of this.constructionSegments) {
+        const [a, b] = segment;
+        this.ctx.beginPath();
+        this.ctx.moveTo(...getCoordinatesAndRotate(a));
+        this.ctx.lineTo(...getCoordinatesAndRotate(b));
+        this.ctx.stroke();
+      }
+      for (const circle of this.constructionCircles) {
+        const [a, b] = circle;
+        const [x1, y1] = getCoordinatesAndRotate(a);
+        const [x2, y2] = getCoordinatesAndRotate(b);
+        const dx = x2 - x1;
+        const dy = y2 - y1;
+        const r = Math.hypot(dx, dy);
+        this.ctx.beginPath();
+        this.ctx.arc(x1, y1, r, 0, 2 * Math.PI);
+        this.ctx.stroke();
+      }
+      this.ctx.fillStyle = '#222';
+      let idx = 0;
+      for (const point of this.points) {
+        const [x, y] = rotateSection([point.x, point.y]);
+        this.ctx.beginPath();
+        this.ctx.arc(x, y, 3, 0, 2 * Math.PI);
+        this.ctx.fill();
+        this.ctx.font = '12px sans-serif';
+        this.ctx.fillText(idx.toString(), x + 5, y + 5);
+        idx++;
+      }
+    }
     this.ctx.restore();
   }
-  draw() {
+  draw(symmetry: number = 1) {
     this.ctx.save();
-    for (const shape of this.patternShapes) {
-      this.ctx.fillStyle = shape.color;
-      const coords = shape.points.map(this.getCoords.bind(this));
-      makeShape(this.ctx, coords);
-      this.ctx.fill();
-    }
-    for (const shape of this.patternLines) {
-      this.ctx.strokeStyle = '#000';
-      this.ctx.lineWidth = this.strokeWidth;
-      const coords = shape.points.map(this.getCoords.bind(this));
-      makeShape(this.ctx, coords);
-      this.ctx.stroke();
-    }
-    for (const shape of this.patternLines) {
-      this.ctx.strokeStyle = shape.color;
-      this.ctx.lineWidth = this.innerStroke;
-      const coords = shape.points.map(this.getCoords.bind(this));
-      makeShape(this.ctx, coords);
-      this.ctx.stroke();
+    for (let section = 0; section < symmetry; section++) {
+      const getCoordinatesAndRotate = (index: number) => {
+        const point = this.getCoords(index);
+        return rotate(
+          point,
+          [this.cx, this.cy],
+          (section * 2 * Math.PI) / symmetry
+        );
+      };
+      for (const shape of this.patternShapes) {
+        this.ctx.fillStyle = shape.color;
+        const coords = shape.points.map(getCoordinatesAndRotate);
+        makeShape(this.ctx, coords);
+        this.ctx.fill();
+      }
+      for (const shape of this.patternLines) {
+        this.ctx.strokeStyle = '#000';
+        this.ctx.lineWidth = this.strokeWidth;
+        const coords = shape.points.map(getCoordinatesAndRotate);
+        makeShape(this.ctx, coords);
+        this.ctx.stroke();
+      }
+      for (const shape of this.patternLines) {
+        this.ctx.strokeStyle = shape.color;
+        this.ctx.lineWidth = this.innerStroke;
+        const coords = shape.points.map(getCoordinatesAndRotate);
+        makeShape(this.ctx, coords);
+        this.ctx.stroke();
+      }
     }
     this.ctx.restore();
   }
