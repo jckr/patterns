@@ -2,7 +2,7 @@ import Head from 'next/head';
 import { Inter } from 'next/font/google';
 import styles from '@/styles/Home.module.css';
 import { Renderer } from './renderer';
-
+import data from '@/data/patterns.json';
 const inter = Inter({ subsets: ['latin'] });
 
 const instructions: Array<string[] | string> = [
@@ -202,7 +202,11 @@ export default function Home() {
         <link rel='icon' href='/favicon.ico' />
       </Head>
       <main className={`${styles.main} ${inter.className}`}>
-        <Renderer width={500} height={500} instructions={instructions} />
+        <Renderer
+          width={500}
+          height={500}
+          instructions={data.star.instructions}
+        />
       </main>
     </>
   );
