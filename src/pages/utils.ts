@@ -127,13 +127,17 @@ export function findSymmetricPoint(
 
 export function makeShape(
   ctx: CanvasRenderingContext2D,
-  points: Array<[number, number]>
+  points: Array<[number, number]>,
+  open: boolean = false
 ) {
   ctx.beginPath();
   const firstPoint = points[0];
   ctx.moveTo(firstPoint[0], firstPoint[1]);
   for (const point of points) {
     ctx.lineTo(point[0], point[1]);
+  }
+  if (open) {
+    ctx.moveTo(firstPoint[0], firstPoint[1]);
   }
   ctx.closePath();
 }

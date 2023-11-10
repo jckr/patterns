@@ -59,12 +59,16 @@
         "segment,8,15",
         "segment,8,18"
       ],
-      "shapeColor,1,19,10,15,red",
-      "shapeColor,10,24,26,25,green",
-      "shapeColor,19,10,24,6,yellow",
-      "shapeColor,6,24,13,27,blue",
-      "shapeColor,0,20,25,26,24,13,orange",
-      "shapeColor,6,27,11,21,yellow"
+      ["shape,1,19,10,15"],
+      ["shape,10,24,26,25", "line,24,26,25"],
+      [
+        "shape,6,27,11,21",
+        "shape,19,10,24,6",
+        "line,6,27,11,21",
+        "line,19,10,24,6"
+      ],
+      ["shape,6,24,13,27", "line,24,13,27"],
+      "shape,0,20,25,26,24,13"
     ]
   },
   "star": {

@@ -19,7 +19,7 @@ export const Renderer = ({
     if (canvas) {
       const ctx = canvas.getContext('2d');
       if (ctx) {
-        engine.current = new Engine(ctx, instructions, 450);
+        engine.current = new Engine(ctx, instructions, { size: 450 });
         engine.current.drawConstruction(symmetry);
         engine.current.draw(symmetry);
       }

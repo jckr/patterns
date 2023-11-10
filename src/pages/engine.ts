@@ -1,5 +1,14 @@
 const SQRT32 = Math.sqrt(3) / 2;
 
+type Options = {
+  size?: number;
+  groutStrokeWidth?: number;
+  strokeWidth?: number;
+  lineStroke?: string;
+  groutStroke?: string;
+  palette?: Array<string>;
+};
+
 import {
   findIntersection,
   findLineCircleIntersections,
@@ -17,9 +26,24 @@ export class Engine {
   private constructionCircles: Array<[number, number]> = [];
   private cx: number;
   private cy: number;
+  private groutStroke = '#222';
+  private groutStrokeWidth = 5;
+  private innerStroke = '#fff';
+  private innerStrokeWidth = 3;
   private instruction: string | null = null;
+  private currentColor = { order: -1, color: '' };
   private order: number = 0;
-  private patternLines: Array<{ points: Array<number>; color: string }> = [];
+  private palette: Array<string> = [
+    '#0066CC', // Deep Azure
+    '#E6BF83', // Golden Sandstone
+    '#8B0000', // Majestic Maroon
+    '#556B2F', // Olive Elegance
+    '#C04000', // Rich Terracotta
+    '#800080', // Royal Plum
+    '#FFFFF0', // Ivory Whisper
+    '#CD853F', // Antique Brass
+  ];
+  private patternLines: Array<Array<number>> = [];
   private patternShapes: Array<{ points: Array<number>; color: string }> = [];
   private points: Array<{
     x: number;
@@ -27,16 +51,18 @@ export class Engine {
     order: number;
     instruction: string | null;
   }> = [];
+  private size: number = 500;
+  private strokeWidth: number = 3;
   constructor(
     private ctx: CanvasRenderingContext2D,
     instructions: Array<string | Array<string>> = [],
-    private size: number = 500,
-    private strokeWidth: number = 5,
-    private innerStroke: number = 3
+    options: Options
   ) {
+    Object.assign(this, options);
     this.cx = ctx.canvas.width / 2;
     this.cy = ctx.canvas.height / 2;
     this.order = 0;
+
     for (const instructionGroup of instructions) {
       if (typeof instructionGroup === 'string') {
         this.instruction = instructionGroup;
@@ -65,10 +91,19 @@ export class Engine {
   addConstructionCircle(a: number, b: number) {
     this.constructionCircles.push([a, b]);
   }
-  addPatternLine(points: Array<number>, color: string = '#fff') {
-    this.patternLines.push({ points, color });
+  addPatternLine(points: Array<number>) {
+    this.patternLines.push(points);
   }
-  addPatternShape(points: Array<number>, color: string = 'red') {
+  addPatternShape(points: Array<number>) {
+    let color;
+    if (this.currentColor.order === this.order) {
+      color = this.currentColor.color;
+    } else {
+      const colorIndex =
+        this.palette.findIndex((d) => d === this.currentColor.color) + 1;
+      color = this.palette[this.order % this.palette.length];
+      this.currentColor = { order: this.order, color };
+    }
     this.patternShapes.push({ points, color });
   }
   addLineIntersect(a: number, b: number, c: number, d: number) {
@@ -258,12 +293,6 @@ export class Engine {
       case 'line':
         this.addPatternLine(args.map((arg) => parseInt(arg)));
         break;
-      case 'lineColor':
-        this.addPatternLine(
-          args.slice(0, args.length - 1).map((arg) => parseInt(arg)),
-          args[args.length - 1]
-        );
-        break;
       case 'point':
         this.addPoint(parseInt(args[0]), parseInt(args[1]));
         break;
@@ -274,13 +303,10 @@ export class Engine {
         this.addPatternShape(args.map((arg) => parseInt(arg)));
         break;
       case 'shapeColor':
-        const points = args
-          .slice(0, args.length - 1)
-          .map((arg) => parseInt(arg));
-        this.addPatternShape(points, args[args.length - 1]);
+        const points = args.map((arg) => parseInt(arg));
+        this.addPatternShape(points);
         this.addPatternLine(points);
         break;
-
       default:
         console.log('unknown command', command);
     }
@@ -335,17 +361,18 @@ export class Engine {
         this.ctx.arc(x1, y1, r, 0, 2 * Math.PI);
         this.ctx.stroke();
       }
-      this.ctx.fillStyle = '#222';
-      let idx = 0;
-      for (const point of this.points) {
-        const [x, y] = rotateSection([point.x, point.y]);
-        this.ctx.beginPath();
-        this.ctx.arc(x, y, 3, 0, 2 * Math.PI);
-        this.ctx.fill();
-        this.ctx.font = '12px sans-serif';
-        this.ctx.fillText(idx.toString(), x + 5, y + 5);
-        idx++;
-      }
+    }
+    // for points, we really only want to draw them once
+    this.ctx.fillStyle = '#222';
+    let idx = 0;
+    for (const point of this.points) {
+      const [x, y] = [point.x, point.y];
+      this.ctx.beginPath();
+      this.ctx.arc(x, y, 3, 0, 2 * Math.PI);
+      this.ctx.fill();
+      this.ctx.font = '12px sans-serif';
+      this.ctx.fillText(idx.toString(), x + 5, y + 5);
+      idx++;
     }
     this.ctx.restore();
   }
@@ -366,18 +393,38 @@ export class Engine {
         makeShape(this.ctx, coords);
         this.ctx.fill();
       }
+    }
+    for (let section = 0; section < symmetry; section++) {
+      const getCoordinatesAndRotate = (index: number) => {
+        const point = this.getCoords(index);
+        return rotate(
+          point,
+          [this.cx, this.cy],
+          (section * 2 * Math.PI) / symmetry
+        );
+      };
       for (const shape of this.patternLines) {
-        this.ctx.strokeStyle = '#000';
-        this.ctx.lineWidth = this.strokeWidth;
-        const coords = shape.points.map(getCoordinatesAndRotate);
-        makeShape(this.ctx, coords);
+        this.ctx.strokeStyle = this.groutStroke;
+        this.ctx.lineWidth = this.groutStrokeWidth;
+        const coords = shape.map(getCoordinatesAndRotate);
+        makeShape(this.ctx, coords, true);
         this.ctx.stroke();
       }
+    }
+    for (let section = 0; section < symmetry; section++) {
+      const getCoordinatesAndRotate = (index: number) => {
+        const point = this.getCoords(index);
+        return rotate(
+          point,
+          [this.cx, this.cy],
+          (section * 2 * Math.PI) / symmetry
+        );
+      };
       for (const shape of this.patternLines) {
-        this.ctx.strokeStyle = shape.color;
-        this.ctx.lineWidth = this.innerStroke;
-        const coords = shape.points.map(getCoordinatesAndRotate);
-        makeShape(this.ctx, coords);
+        this.ctx.strokeStyle = this.innerStroke;
+        this.ctx.lineWidth = this.innerStrokeWidth;
+        const coords = shape.map(getCoordinatesAndRotate);
+        makeShape(this.ctx, coords, true);
         this.ctx.stroke();
       }
     }
