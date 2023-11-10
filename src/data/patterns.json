@@ -71,6 +71,72 @@
       "shape,0,20,25,26,24,13"
     ]
   },
+  "kairouan": {
+    "symmetry": 4,
+    "instructions": [
+      "addRelativePoint,0,0",
+      [
+        "addRelativePoint,-1,-1",
+        "addRelativePoint,0,-1",
+        "addRelativePoint,1,-1",
+        "addRelativePoint,-1,0",
+        "addRelativePoint,1,0",
+        "addRelativePoint,-1,1",
+        "addRelativePoint,0,1",
+        "addRelativePoint,1,1"
+      ],
+      "addCircleIntersect,1,8,0,2",
+      "addCircleIntersect,3,6,0,2",
+      [
+        "addLineIntersect,4,10,1,3",
+        "addLineIntersect,2,10,1,6",
+        "addLineIntersect,2,11,3,8",
+        "addLineIntersect,5,11,1,3",
+        "addLineIntersect,5,9,6,8",
+        "addLineIntersect,7,9,3,8",
+        "addLineIntersect,7,12,1,6",
+        "addLineIntersect,4,12,6,8"
+      ],
+      [
+        "addLineIntersect,10,11,2,4",
+        "addLineIntersect,10,11,2,5",
+        "addLineIntersect,11,9,2,5",
+        "addLineIntersect,11,9,5,7",
+        "addLineIntersect,9,12,5,7",
+        "addLineIntersect,9,12,4,7",
+        "addLineIntersect,10,12,4,7",
+        "addLineIntersect,10,12,2,4"
+      ],
+      [
+        "addLineIntersect,28,23,4,10",
+        "addLineIntersect,14,17,4,10",
+        "addLineIntersect,2,10,21,26",
+        "addLineIntersect,2,10,13,18"
+      ],
+      [
+        "addLineIntersect,14,17,4,5",
+        "addLineIntersect,16,19,21,26",
+        "addLineIntersect,23,28,21,26"
+      ],
+      ["addLineIntersect,16,19,23,28", "addLineIntersect,16,19,13,18"],
+      ["shape,0,33,34,35,36,37", "line,33,34,35,36,37"],
+      [
+        "shape,4,29,28,33",
+        "line,4,29,28,33",
+        "shape,2,31,21,37",
+        "line,2,31,21,37"
+      ],
+      [
+        "shape,33,34,35,28",
+        "line,33,34,35,28,33",
+        "shape,21,35,36,37",
+        "line,21,35,36,37,21"
+      ],
+      ["shape,1,14,10,13", "line,14,10,13"],
+      ["shape,10,30,28,35,21,32", "line,10,30,28,35,21,32,10"],
+      ["shape,13,10,32,21,31,2", "shape,4,29,28,30,10,14"]
+    ]
+  },
   "star": {
     "symmetry": 1,
     "instructions": [

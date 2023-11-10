@@ -86,9 +86,28 @@ export class Engine {
     });
   }
   addConstructionSegment(a: number, b: number) {
+    if (
+      this.constructionSegments.some(
+        ([c, d]) => (c === a && d === b) || (c === b && d === a)
+      )
+    ) {
+      return;
+    }
     this.constructionSegments.push([a, b]);
   }
   addConstructionCircle(a: number, b: number) {
+    if (
+      this.constructionCircles.some(([c, d]) => {
+        if (c !== a) return false;
+        const [cx, cy] = this.getCoords(c);
+        const [bx, by] = this.getCoords(b);
+        const [dx, dy] = this.getCoords(d);
+        if (Math.hypot(cx - bx, cy - by) !== Math.hypot(cx - dx, cy - dy))
+          return false;
+      })
+    ) {
+      return;
+    }
     this.constructionCircles.push([a, b]);
   }
   addPatternLine(points: Array<number>) {
@@ -122,6 +141,8 @@ export class Engine {
           this.getCoords(d),
         ])
       ) {
+        this.addConstructionSegment(a, b);
+        this.addConstructionSegment(c, d);
         this.addPoint(intersection[0], intersection[1]);
       }
     }
@@ -142,6 +163,8 @@ export class Engine {
           this.getCoords(d),
         ])
       ) {
+        this.addConstructionSegment(a, b);
+        this.addConstructionCircle(c, d);
         this.addPoint(intersection[0], intersection[1]);
       }
     }
