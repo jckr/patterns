@@ -192,7 +192,7 @@ const instructions: Array<string[] | string> = [
   ],
 ];
 
-const figure = 'kairouan';
+const figure = 'mustansiriya';
 
 export default function Home() {
   return (
